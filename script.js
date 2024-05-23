@@ -1,6 +1,4 @@
 document.addEventListener('DOMContentLoaded', function() {
-    console.log("DOM fully loaded and parsed");
-
     const words = ["SAPIANS", "SLIMS", "PEOPLE", "NEWS", "FUN", "COFFEE"];
     const gridSize = 15;
     const grid = [];
@@ -12,11 +10,9 @@ document.addEventListener('DOMContentLoaded', function() {
             grid[i][j] = '';
         }
     }
-    console.log("Grid initialized");
 
     // Place words randomly on the grid
     words.forEach(word => placeWord(word));
-    console.log("Words placed on grid", grid);
 
     // Fill empty cells with random letters
     for (let i = 0; i < gridSize; i++) {
@@ -26,7 +22,6 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
     }
-    console.log("Grid filled with random letters", grid);
 
     // Display the grid
     const table = document.getElementById('wordGrid');
@@ -40,7 +35,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
         table.appendChild(tr);
     });
-    console.log("Grid displayed on page");
 
     // Toggle highlighting of cells
     function toggleHighlight(cell, row, col) {
@@ -72,7 +66,59 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
+    // Check if all words are found and show congratulations
+    function checkAllWordsFound() {
+        const foundWords = words.filter(word => {
+            return word.split('').every(letter => {
+                return Array.from(document.querySelectorAll('.found')).some(cell => cell.textContent === letter);
+            });
+        });
+        if (foundWords.length === words.length) {
+            showCongratulations();
+        }
+    }
+
+    // Show congratulations message
+    function showCongratulations() {
+        alert("Congratulations! You found all the words!");
+    }
+
+    // Place a word on the grid
     function placeWord(word) {
-        // Simplified example: place words horizontally from top left
-        const row = Math.floor(Math.random() * (gridSize - word.length));
-        const col
+        let row, col, direction;
+        do {
+            direction = Math.random() < 0.5 ? 'horizontal' : 'vertical';
+            if (direction === 'horizontal') {
+                row = Math.floor(Math.random() * gridSize);
+                col = Math.floor(Math.random() * (gridSize - word.length));
+            } else {
+                row = Math.floor(Math.random() * (gridSize - word.length));
+                col = Math.floor(Math.random() * gridSize);
+            }
+        } while (!checkSpace(row, col, word.length, direction));
+
+        for (let i = 0; i < word.length; i++) {
+            if (direction === 'horizontal') {
+                grid[row][col + i] = word[i];
+            } else {
+                grid[row + i][col] = word[i];
+            }
+        }
+    }
+
+    // Check if a word can be placed on the grid without overlapping
+    function checkSpace(row, col, length, direction) {
+        for (let i = 0; i < length; i++) {
+            if (direction === 'horizontal') {
+                if (grid[row][col + i] !== '' && grid[row][col + i] !== word[i]) {
+                    return false;
+                }
+            } else {
+                if (grid[row + i][col] !== '' && grid[row + i][col] !== word[i]) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+});
