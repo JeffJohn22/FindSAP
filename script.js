@@ -1,8 +1,10 @@
-document.addEventListener('DOMContentLoaded', function() {
-    const words = ["SAPIANS", "SLIMS", "PEOPLE", "NEWS", "FUN", "COFFEE"];
-    const gridSize = 15;
-    const grid = [];
+// Declare variables globally
+const table = document.getElementById('wordGrid');
+const words = ["SAPIANS", "SLIMS", "PEOPLE", "NEWS", "FUN", "COFFEE"];
+const gridSize = 15;
+const grid = [];
 
+document.addEventListener('DOMContentLoaded', function() {
     // Initialize grid
     for (let i = 0; i < gridSize; i++) {
         grid[i] = [];
@@ -24,7 +26,6 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Display the grid
-    const table = document.getElementById('wordGrid');
     grid.forEach((row, rowIndex) => {
         const tr = document.createElement('tr');
         row.forEach((cell, colIndex) => {
