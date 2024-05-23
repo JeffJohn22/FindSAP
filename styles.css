@@ -12,7 +12,7 @@ h1 {
 .agenda {
     margin: 20px auto;
     max-width: 300px;
-    text-align: center; /* Align center */
+    text-align: center;
     padding: 20px;
     background-color: #fff;
     border-radius: 20px;
@@ -30,10 +30,10 @@ h1 {
 table {
     margin: 20px auto;
     border-collapse: collapse;
-    border: 2px solid #1e3799; /* Change border color */
+    border: 2px solid #1e3799;
 }
 td {
-    border: 1px solid #1e3799; /* Change cell border color */
+    border: 1px solid #1e3799;
     width: 30px;
     height: 30px;
     text-align: center;
@@ -47,9 +47,6 @@ td.highlight {
 td.found {
     background-color: #2ecc71;
     color: white;
-}
-.highlight {
-    background-color: #f8c291;
 }
 #submitBtn {
     display: none;
