@@ -1,25 +1,23 @@
-<!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Find SAP</title>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="styles.css">
+  	<meta charset="utf-8">
+  	<title>Word Search!</title>
+    <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Fresca">
+    <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Happy+Monkey">
+  	<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
 </head>
 <body>
-    <!-- Your HTML content -->
-    <h1>Find SAP, and GET IT</h1>
-    <table id="wordGrid">
-        <!-- Grid will be populated by JavaScript -->
-    </table>
-    <div class="instructions">
-        <p style="font-size: 18px;"><strong>Find these words:</strong></p>
-        <p style="font-size: 16px;">SAPIANS, SLIMS, PEOPLE, NEWS, FUN, COFFEE</p>
+	<div id="main">
+		<div class="left">
+      <div class="letters">
+        <canvas id="a" width="800" height="800"></canvas>
+        <canvas id="c" width="800" height="800"></canvas>
+      </div>
     </div>
-    <button id="submitBtn" onclick="submitWords()">Submit</button>
-    
-    <!-- Link your JavaScript file -->
-    <script src="script.js"></script>
+    <div class="right">
+      <div class="words">
+      </div>
+  	</div>
+  </div>
 </body>
 </html>
