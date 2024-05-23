@@ -1,4 +1,4 @@
-document.addEventListener('DOMContentLoaded', function() {
+window.onload = function() {
     const words = ["SAPIANS", "SLIMS", "PEOPLE", "NEWS", "FUN", "COFFEE"];
     const gridSize = 15;
     const grid = [];
@@ -121,4 +121,4 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         return true;
     }
-});
+};
