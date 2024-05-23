@@ -1,361 +1,276 @@
-var pos = [];
-var click = { "startPos": "", "endPos": ""
-			};
-var letters = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M",
-			   "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"];
-
-var words = [ { "word": "BUFFALO", "direction": "N", "start": 254 },
-			  { "word": "LAKERS", "direction": "SE", "start": 2 },
-			  { "word": "PRECIPITATE", "direction": "NE", "start": 323 },
-			  { "word": "CALDRON", "direction": "S", "start": 39 },
-			  { "word": "MISCIBLE", "direction": "NW", "start": 268 },
-			  { "word": "AEON", "direction": "E", "start": 132 },
-			  { "word": "SCRUTINY", "direction": "E", "start": 49 },
-			  { "word": "CLEANERS", "direction": "S", "start": 137},
-			  { "word": "SEETHING", "direction": "W", "start": 357 },
-			  { "word": "MOTH", "direction": "E", "start": 383 },
-			  { "word": "DOUBLE", "direction": "S", "start": 120 },
-			  { "word": "CREATURE", "direction": "N", "start": 395 },
-			  { "word": "GIPSY", "direction": "NW", "start": 340 },
-			  { "word": "MOBILE", "direction": "W", "start": 98 },
-			  { "word": "COMPUTER", "direction": "N", "start": 381 },
-			  { "word": "THEWEB", "direction": "N", "start": 145 },
-			  { "word": "HORSES", "direction": "E", "start": 6 },
-			  { "word": "HICKORYJUMP", "direction": "NE", "start": 204 },
-			  { "word": "CHROME", "direction": "NW", "start": 266},
-			  { "word": "MULDER", "direction": "S", "start": 41 },
-			];
-
-
-// Prepare the wordsearch with random letters and word layout
-$(document).ready(function() {
-	// grab the size of the grid.  I used this method in case I need to 
-	// scale this word search in the future
-	var size = 400; //($(".left").css("width").slice(0, 3) - 20) / 2 ;
-
-	// put random letters on the board
-	for (var i = 0; i < size; i++) {
-		$(".letters").append("<span class='" + (i + 1) + "'>" + 
-							getRandomLetter() + "</span>");
-	}
-
-	// insert the words onto the board
-	for (var i = 0; i < words.length; i++) {
-		words[i].end = words[i].start;
-		displayWord(words[i]);
-		// save the start and end of each word for word checking later
-		pos[i] = { "start": words[i].start, "end": words[i].end };
-		$(".words").append("<span class='" + (i) + "'>" +  
-							words[i].word + "</span>");	
-	}
-
-	$("#menu").on("mouseup", function() {
-		$(this).css( {"display": "none"})
-		$("#main").slideDown("slow", function() {
-		})
-	});
-})
-
-function getRandomLetter() {
-	return letters[Math.floor(Math.random() * letters.length)];
+"use strict";
+// WORDSEARCH.JS
+class WordSearch {
+    constructor(wrapEl) {
+        this.wrapEl = wrapEl;
+        // Add `.ws-area` to wrap element
+        this.wrapEl.classList.add("ws-area");
+        //Words solved.
+        this.solved = 0;
+        // Default settings
+        this.settings = {
+            directions: ["W", "N", "WN", "EN"],
+            gridSize: 10,
+            words: ["one", "two", "three", "four", "five"],
+            wordsList: [],
+            debug: false,
+        };
+        // Check the words' length if it is overflow the grid
+        if (this.parseWords(this.settings.gridSize)) {
+            // Add words into the matrix data
+            let isWorked = false;
+            while (!isWorked) {
+                // initialize the application
+                this.initialize();
+                isWorked = this.addWords();
+            }
+            // Fill up the remaining blank items
+            if (!this.settings.debug) {
+                this.fillUpFools();
+            }
+            // Draw the matrix into wrap element
+            this.drawmatrix();
+        }
+    }
+    parseWords(maxSize) {
+        let itWorked = true;
+        for (let i = 0; i < this.settings.words.length; i++) {
+            // Convert all the letters to upper case
+            this.settings.wordsList[i] = this.settings.words[i].trim();
+            this.settings.words[i] = this.settings.wordsList[i].trim().toUpperCase();
+            let word = this.settings.words[i];
+            if (word.length > maxSize) {
+                alert("The length of word `" + word + "` is overflow the gridSize.");
+                console.error("The length of word `" + word + "` is overflow the gridSize.");
+                itWorked = false;
+            }
+        }
+        return itWorked;
+    }
+    addWords() {
+        console.log("Adding words");
+        let keepGoing = true, counter = 0, isWorked = true;
+        while (keepGoing) {
+            // Getting random direction
+            let dir = this.settings.directions[this.randRange(0, this.settings.directions.length - 1)], result = this.addWord(this.settings.words[counter], dir);
+            if (!result) {
+                keepGoing = false;
+                isWorked = false;
+            }
+            counter++;
+            if (counter >= this.settings.words.length) {
+                keepGoing = false;
+            }
+        }
+        return isWorked;
+    }
+    addWord(word, direction) {
+        let itWorked = true, directions = {
+            W: [0, 1],
+            N: [1, 0],
+            WN: [1, 1],
+            EN: [1, -1], // From top right to bottom left
+        }, row, col; // y, x
+        switch (direction) {
+            case "W": // Horizontal (From left to right)
+                (row = this.randRange(0, this.settings.gridSize - 1)),
+                    (col = this.randRange(0, this.settings.gridSize - word.length));
+                break;
+            case "N": // Vertical (From top to bottom)
+                (row = this.randRange(0, this.settings.gridSize - word.length)),
+                    (col = this.randRange(0, this.settings.gridSize - 1));
+                break;
+            case "WN": // From top left to bottom right
+                (row = this.randRange(0, this.settings.gridSize - word.length)),
+                    (col = this.randRange(0, this.settings.gridSize - word.length));
+                break;
+            case "EN": // From top right to bottom left
+                (row = this.randRange(0, this.settings.gridSize - word.length)),
+                    (col = this.randRange(word.length - 1, this.settings.gridSize - 1));
+                break;
+            default:
+                let error = "UNKNOWN DIRECTION " + direction + "!";
+                alert(error);
+                console.log(error);
+                break;
+        }
+        // Add words to the matrix
+        for (let i = 0; i < word.length; i++) {
+            let newRow = row + i * directions[direction][0], newCol = col + i * directions[direction][1];
+            // The letter on the board
+            let origin = this.matrix[newRow][newCol].letter;
+            if (origin === "." || origin === word[i]) {
+                this.matrix[newRow][newCol].letter = word[i];
+            }
+            else {
+                itWorked = false;
+            }
+        }
+        return itWorked;
+    }
+    initialize() {
+        this.matrix = [...Array(this.settings.gridSize)].map((_) => Array(this.settings.gridSize));
+        this.selectFrom = null;
+        this.selected = [];
+        this.initmatrix(this.settings.gridSize);
+    }
+    initmatrix(size) {
+        for (let row = 0; row < size; row++) {
+            for (let col = 0; col < size; col++) {
+                let item = {
+                    letter: ".",
+                    row,
+                    col,
+                };
+                this.matrix[row][col] = item;
+            }
+        }
+    }
+    drawmatrix() {
+        for (let row = 0; row < this.settings.gridSize; row++) {
+            // New row
+            let divEl = document.createElement("div");
+            divEl.setAttribute("class", "ws-row");
+            this.wrapEl.appendChild(divEl);
+            for (let col = 0; col < this.settings.gridSize; col++) {
+                let cvEl = document.createElement("canvas");
+                cvEl.setAttribute("class", "ws-col");
+                cvEl.setAttribute("width", "40");
+                cvEl.setAttribute("height", "40");
+                // Fill text in middle center
+                let x = cvEl.width / 2, y = cvEl.height / 2;
+                let ctx = cvEl.getContext("2d");
+                ctx.font = "400 28px Calibri";
+                ctx.textAlign = "center";
+                ctx.textBaseline = "middle";
+                ctx.fillStyle = "#333"; // Text color
+                ctx.fillText(this.matrix[row][col].letter, x, y);
+                // Add event listeners
+                cvEl.addEventListener("mousedown", this.onMousedown(this.matrix[row][col]));
+                cvEl.addEventListener("touchmove", this.onMousedown(this.matrix[row][col]));
+                cvEl.addEventListener("mouseover", this.onMouseover(this.matrix[row][col]));
+                cvEl.addEventListener("mouseup", this.onMouseup());
+                divEl.appendChild(cvEl);
+            }
+        }
+    }
+    fillUpFools() {
+        // let rangeLanguage = searchLanguage(this.settings.words[0].split('')[0]);
+        for (let row = 0; row < this.settings.gridSize; row++) {
+            for (let col = 0; col < this.settings.gridSize; col++) {
+                if (this.matrix[row][col].letter === ".") {
+                    // this.randRange(65, 90) => A ~ Z
+                    this.matrix[row][col].letter = String.fromCharCode(this.randRange(65, 90));
+                }
+            }
+        }
+    }
+    getItems(rowFrom, colFrom, rowTo, colTo) {
+        let items = [];
+        if (rowFrom === rowTo || colFrom === colTo || Math.abs(rowTo - rowFrom) === Math.abs(colTo - colFrom)) {
+            let shiftY = rowFrom === rowTo ? 0 : rowTo > rowFrom ? 1 : -1, shiftX = colFrom === colTo ? 0 : colTo > colFrom ? 1 : -1, row = rowFrom, col = colFrom;
+            items.push(this.getItem(row, col));
+            do {
+                row += shiftY;
+                col += shiftX;
+                items.push(this.getItem(row, col));
+            } while (row !== rowTo || col !== colTo);
+        }
+        return items;
+    }
+    getItem(row, col) {
+        return this.matrix[row] ? this.matrix[row][col] : undefined;
+    }
+    clearHighlight() {
+        let selectedEls = document.querySelectorAll(".ws-selected");
+        for (let i = 0; i < selectedEls.length; i++) {
+            selectedEls[i].classList.remove("ws-selected");
+        }
+    }
+    lookup(selected) {
+        let words = [""];
+        for (let i = 0; i < selected.length; i++) {
+            words[0] += selected[i].letter;
+        }
+        words.push(words[0].split("").reverse().join(""));
+        if (this.settings.words.indexOf(words[0]) > -1 || this.settings.words.indexOf(words[1]) > -1) {
+            for (let i = 0; i < selected.length; i++) {
+                let row = selected[i].row + 1, col = selected[i].col + 1, el = document.querySelector(".ws-area .ws-row:nth-child(" + row + ") .ws-col:nth-child(" + col + ")");
+                el.classList.add("ws-found");
+            }
+            //Cross word off list.
+            let wordList = document.querySelector(".ws-words");
+            let wordListItems = wordList.getElementsByTagName("li");
+            for (let i = 0; i < wordListItems.length; i++) {
+                if (words[0] === wordListItems[i].innerHTML.toUpperCase()) {
+                    if (wordListItems[i].innerHTML != "<del>" + wordListItems[i].innerHTML + "</del>") {
+                        //Check the word is never found
+                        wordListItems[i].innerHTML = "<del>" + wordListItems[i].innerHTML + "</del>";
+                        //Increment solved words.
+                        this.solved++;
+                    }
+                }
+            }
+            //Game over?
+            if (this.solved === this.settings.words.length) {
+                this.gameOver();
+            }
+        }
+    }
+    /**
+     * Game Over
+     */
+    gameOver() {
+        alert("yay");
+    }
+    /**
+     * Mouse event - Mouse down
+     * @param {Object} item
+     */
+    onMousedown(item) {
+        return () => {
+            this.selectFrom = item;
+        };
+    }
+    /**
+     * Mouse event - Mouse move
+     * @param {Object}
+     */
+    onMouseover(item) {
+        return () => {
+            if (this.selectFrom) {
+                this.selected = this.getItems(this.selectFrom.row, this.selectFrom.col, item.row, item.col);
+                this.clearHighlight();
+                for (let i = 0; i < this.selected.length; i++) {
+                    let current = this.selected[i], row = current.row + 1, col = current.col + 1, el = document.querySelector(".ws-area .ws-row:nth-child(" + row + ") .ws-col:nth-child(" + col + ")");
+                    el.className += " ws-selected";
+                }
+            }
+        };
+    }
+    /**
+     * Mouse event - Mouse up
+     */
+    onMouseup() {
+        return () => {
+            this.selectFrom = null;
+            this.clearHighlight();
+            this.lookup(this.selected);
+            this.selected = [];
+        };
+    }
+    randRange(min, max) {
+        return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
 }
-
-function displayWord(w) {
-	for (var j = 0; j < w.word.length; j++){
-		if (w.direction == "N") {
-			$(".letters").find("." + w.end).text(w.word[j]);
-			if (j + 1 != w.word.length) w.end -= 20;
-		}
-		if (w.direction == "NE") {
-			$(".letters").find("." + w.end).text(w.word[j]);
-			if (j + 1 != w.word.length) w.end -= 19;
-		}
-		if (w.direction == "E") {
-			$(".letters").find("." + w.end).text(w.word[j]);
-			if (j + 1 != w.word.length) w.end += 1;
-		}
-		if (w.direction == "SE") {
-			$(".letters").find("." + w.end).text(w.word[j]);
-			if (j + 1 != w.word.length) w.end += 21;
-		}
-		if (w.direction == "S") {
-			$(".letters").find("." + w.end).text(w.word[j]);
-			if (j + 1 != w.word.length) w.end += 20;
-		}
-		if (w.direction == "SW") {
-			$(".letters").find("." + w.end).text(w.word[j]);
-			if (j + 1 != w.word.length) w.end += 19;
-		}
-		if (w.direction == "W") {
-			$(".letters").find("." + w.end).text(w.word[j]);
-			if (j + 1 != w.word.length) w.end -= 1;
-		}
-		if (w.direction == "NW") {
-			$(".letters").find("." + w.end).text(w.word[j]);
-			if (j + 1 != w.word.length) w.end -= 21;
-		}
-	}
-}
-
-
-// start of x & y, end of x & y.  
-var sX, sY, eX, eY, canvas, ctx, height, width, diff;
-var r = 14;
-var n = Math.sqrt((r * r) / 2);
-var strokeColor = "black";
-var isMouseDown = false;
-var mouseMoved = false;
-
-$(document).ready(function() {
-	$("#c").on("mousedown mouseup mousemove mouseleave", function(e) {
-		e.preventDefault();
-		//console.log(e);
-		if (e.type == "mousedown") {
-			setCanvas("c");			
-			isMouseDown = true;
-      
-      // Used for Firefox
-			sX = e.offsetX || e.clientX - $(e.target).offset().left;
-			sY = e.offsetY || e.clientY - $(e.target).offset().top;
-			// adjust the center of the arc 
-			sX -= (sX % 20);
-			sY -= (sY % 20);
-			if (!(sX % 40)) sX += 20;
-			if (!(sY % 40)) sY += 20;
-
-			setPos(sX, sY, "start");
-			draw(e.type);
-		} 
-		else if (e.type == "mousemove") {
-			if (isMouseDown) {
-				mouseMoved = true;
-				eX = e.offsetX || e.clientX - $(e.target).offset().left;
-				eY = e.offsetY || e.clientY - $(e.target).offset().top;
-				draw(e.type);
-			}
-		} 
-		else if (e.type == "mouseup") {
-			isMouseDown = false;
-			ctx.clearRect(0, 0, width, height);
-			if (mouseMoved) {
-				mouseMoved = false;
-
-				eX -= eX % 20;
-				eY -= eY % 20;
-				if (!(eX % 40)) eX += 20;
-				if (!(eY % 40)) eY += 20;
-
-				// draw the last line and clear the canvas to check and see if its the 
-				// correct word
-				draw(e.type);
-				ctx.clearRect(0, 0, width, height);
-				// if a correct word has been highlighted change the canvas to 
-				// the permanent one and redraw the arcs and lines.  Then scratch the 
-				// word on the right.
-				if (checkWord()) {
-					setCanvas("a");
-					draw(e.type);
-					scratchWord();
-					// Check if the game is over
-					if(isEndOfGame()) {
-						alert("Good job!");
-					}
-				}
-
-			}
-		} 
-		else if (e.type == "mouseleave") {
-			isMouseDown = false;
-			draw(e.type);
-		}
-
-	});
-})
-
-// This function is called when lines need to be drawn on the game
-function draw(f) {
-	// used to draw an arc.  takes in two numbers that represent the beginning
-	// and end of the arc
-	function drawArc(xArc, yArc, num1, num2) {
-		ctx.lineWidth = 2;
-		ctx.beginPath();
-		ctx.arc(xArc, yArc, r, num1 * Math.PI, num2 * Math.PI);
-		ctx.strokeStyle = strokeColor;
-		ctx.stroke();
-	}
-
-	// used to draw the two lines around letters
-	function drawLines(mX1, mY1, lX1, lY1, mX2, mY2, lX2, lY2) {
-		ctx.beginPath();
-		ctx.moveTo(mX1, mY1);
-		ctx.lineTo(lX1, lY1);
-		ctx.moveTo(mX2, mY2);
-		ctx.lineTo(lX2, lY2);
-		ctx.stroke();
-	}
-	// Check and see what event occured and create the action that belongs to that 
-	// event.
-	if (f == "mousedown"){
-		ctx.clearRect(0, 0, width, height);
-		drawArc(sX, sY, 0, 2);
-	}
-	else if (f == "mousemove" || f == "mouseup") {
-		/* 
-		This is to show the rise over run I used to get the limits for 
-		all eight directions.  This tells the conditionals when to activiate
-		the lines and in which direction.
-		rise = (sY - eY) * Math.sqrt(6);
-		run = sX - eX;
-		 */	  
-		limit = ((sY - eY) * Math.sqrt(6)) / (sX - eX);
-		// UP
-		if ((limit > 6 || limit < -6) && eY < sY) {
-			// clear the canvas
-			if (f == "mousemove") ctx.clearRect(0, 0, width, height);
-			drawArc(sX, sY, 0, 1); // draw bottom arc
-			drawArc(sX, eY, 1, 2); // draw top arc
-
-			// draw the two lines that connect the bottom and the top arcs
-			drawLines(sX + r, sY, sX + r, eY, sX - r, sY, sX -r, eY);	
-
-			// if the player is selecting this as the last letter set its position 
-			// for wordcheck
-			if (f == "mouseup") setPos(sX, eY, "end");	
-		}
-		// DOWN
-		if ((limit < -6 || limit > 6) && eY > sY) {
-			// clear the canvas
-			if (f == "mousemove") ctx.clearRect(0, 0, width, height);
-			drawArc(sX, sY, 1, 2); 
-			drawArc(sX, eY, 0, 1); 
-			drawLines(sX + r, sY, sX + r, eY, sX - r, sY, sX -r, eY);
-			if (f == "mouseup") setPos(sX, eY, "end");		
-		}				
-		// LEFT
-		if ((limit < 1 && limit > -1) && eX < sX) {
-			if (f == "mousemove") ctx.clearRect(0, 0, width, height);
-			drawArc(sX, sY, 1.5, 0.5);
-			drawArc(eX, sY, 0.5, 1.5);
-			drawLines(sX, sY - r, eX, sY -r, sX, sY + r, eX, sY + r);
-			if (f == "mouseup") setPos(eX, sY, "end");
-		}	
-		// RIGHT
-		if ((limit < 1 && limit > -1) && eX > sX) {
-			if (f == "mousemove") ctx.clearRect(0, 0, width, height);
-			drawArc(sX, sY, 0.5, 1.5);
-			drawArc(eX, sY, 1.5, 0.5);
-			drawLines(sX, sY - r, eX, sY -r, sX, sY + r, eX, sY + r);
-			if (f == "mouseup") setPos(eX, sY, "end");
-		}
-		/* 
-		This is for the NW diagonal lines it requires a special number 
-		n that is the adjacent lengths of a 45-45-90 triangle needed to draw these
-		lines.  It also creates a diff for the difference between the 
-		start and the end of the arcs 
-		*/
-		// NW
-		if ((limit > 1 && limit < 6) && (eX < sX && eY < sY)) {
-			if (f == "mousemove") ctx.clearRect(0, 0, width, height);
-			diff = sX - eX;
-			drawArc(sX, sY, 1.75, 0.75);
-			drawArc(sX - diff, sY - diff, 0.75, 1.75);
-			drawLines(sX + n, sY - n, sX + n - diff, sY - n - diff, 
-					  sX - n, sY + n, sX - n - diff, sY + n - diff);
-			if (f == "mouseup") setPos(sX - diff, sY - diff, "end");
-		} 
-
-		// NE
-		if ((limit < -1 && limit > -6) && (eX > sX && eY < sY)) {
-			if (f == "mousemove") ctx.clearRect(0, 0, width, height);
-			diff = sX - eX;
-			drawArc(sX, sY, 0.25, 1.25);
-			drawArc(sX - diff, sY + diff, 1.25, 0.25);
-			drawLines(sX + n, sY + n, sX + n - diff, sY + n + diff, 
-					  sX - n, sY - n, sX - n - diff, sY - n + diff);
-			if (f == "mouseup") setPos(sX - diff, sY + diff, "end");
-		} 
-		// SW
-		if ((limit < -1 && limit > -6) && (eX < sX && eY > sY)) {
-			if (f == "mousemove") ctx.clearRect(0, 0, width, height);
-			diff = sX - eX;
-			drawArc(sX, sY, 1.25, 0.25);
-			drawArc(sX - diff, sY + diff, 0.25, 1.25);
-			drawLines(sX + n, sY + n, sX + n - diff, sY + n + diff, 
-					  sX - n, sY - n, sX - n - diff, sY - n + diff);
-			if (f == "mouseup") setPos(sX - diff, sY + diff, "end");
-		} 
-		// SE
-		if ((limit > 1 && limit < 6) && (eX > sX && eY > sY)) {
-			if (f == "mousemove") ctx.clearRect(0, 0, width, height);
-			diff = sX - eX;
-			drawArc(sX, sY, 0.75, 1.75);
-			drawArc(sX - diff, sY - diff, 1.75, 0.75);
-			drawLines(sX + n, sY - n, sX + n - diff, sY - n - diff, 
-					  sX - n, sY + n, sX - n - diff, sY + n - diff);
-			if (f == "mouseup") setPos(sX - diff, sY - diff, "end");
-		} 
-	}
-
-	else if (f == "mouseleave") {
-		setCanvas("c");
-		ctx.clearRect(0,0,width,height);
-	}
-}
-
-
-// change the canvas between the bottom and top layer
-function setCanvas(id) {
-	canvas = document.getElementById(id);
-	ctx = canvas.getContext("2d");
-	width = canvas.width;
-	height = canvas.height;
-}
-
-
-// set the offsets to numbers that match the class names of each letter
-function setPos(x, y, loc) {
-	tX = Math.floor((x / 8) / 5 ) + 1;
-	tY = Math.floor((y / 8) / 5 ) + 1;
-	if (loc == "start") click.startPos = (tY - 1) * 20 + tX;
-	else click.endPos = (tY - 1) * 20 + tX;
-}
-
-
-// verify if the word chosen is the correct one. If a player decides
-// to highlight a word starting from last letter to first this function
-// will also support that ability
-function checkWord() {
-	// clears the pos array so that a player cannot highlight the same word twice
-	function clearPos(p) {
-		p.start = p.end = 0;
-		return true;
-	}
-	// user highlights from first letter to last
-	if (pos.some(function(o) { return o.start === click.startPos &&
-							   o.end === click.endPos && clearPos(o); })) {
-		return true;
-	}
-	// if user highlights from last letter to first
-	else if (pos.some(function(o) { return o.start === click.endPos &&
-									o.end === click.startPos && clearPos(o); })) {
-		return true;
-	}
-	else return false;
-}
-
-// scratch the word on the right out when the word is found on the left
-function scratchWord() {
-	for (var i = 0; i < words.length; i++) {
-		if ((click.startPos === words[i].start && click.endPos === words[i].end) ||
-			(click.startPos === words[i].end && click.endPos === words[i].start)) {
-			// little hack here
-			$(".words").find("." + i).addClass("strike");		
-		}
-	}
-	// check if the game is over
-
-}
-
-function isEndOfGame(){
-	return pos.every(function(o) { return o.start === 0 && o.end === 0; });
+// INDEX.HTML
+let gameAreaEl = document.getElementById("ws-area");
+let gameobj = new WordSearch(gameAreaEl);
+// Put words into `.ws-words`
+let words = gameobj.settings.wordsList, wordsWrap = document.querySelector(".ws-words");
+for (let i in words) {
+    let liEl = document.createElement("li");
+    liEl.setAttribute("class", "ws-word");
+    liEl.innerText = words[i];
+    wordsWrap.appendChild(liEl);
 }
