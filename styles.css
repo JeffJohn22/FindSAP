@@ -1,91 +1,96 @@
-/* STYLE.CSS */
-/* CSS reset */
-
-body,
-h1 {
-  margin: 0;
-  padding: 0;
+* {
+	margin: 0;
+	padding: 0;
+	box-sizing: border-box;
+	-moz-box-sizing: border-box;
 }
 
-h1 {
-  text-transform: uppercase;
+html {
+	height: 100%;
+	background: #999999;
+	background: linear-gradient(bottom, #fff 70%, #bbb 100%);
+	background-size: cover;
 }
 
-body {
-  color: #333;
+#main {
+	width: 70em;
+	height: 51em;
+	margin: 10px auto;
+	display: block;
 }
 
-/* Common */
+.left {
+	float: left;
+	width: 820px;
+	height: auto;
+	border: 10px solid #9dd2ea;
+	border-radius: 3px;
 
-.fix {
-  *zoom: 1;
+	box-shadow: 0 10px 6px -6px rgba(0,0,0,0.5);
+	-moz-box-shadow: 0 10px 6px -6px rgba(0,0,0,0.5);
+	-webkit-box-shadow: 0 10px 6px -6px rgba(0,0,0,0.5);
 }
 
-.fix:after {
-  display: table;
-  clear: both;
-  content: "";
+.letters {
+	font-size: 1.3em;
+	font-family: 'Fresca', serif;
 }
 
-/* Home */
+.letters span {
+	float:left;
+	width: 40px;
+	height: 40px;
 
-.wrap {
-  margin: 0 auto;
-  padding: 40px 0;
-  text-align: center;
-  position: relative;
+	background: white;
+	line-height: 43px;
+	text-align: center;
+
+	font-size: 1em;
+
 }
 
-.logo,
-#gameArea {
-  margin-bottom: 40px;
+.right {
+	float: right;
+	width: 220px;
+	height: auto;
+	border: 10px solid #9dd2ea;
+	border-radius: 3px;
+
+	box-shadow: 0 10px 6px -6px rgba(0,0,0,0.5);
+	-moz-box-shadow: 0 10px 6px -6px rgba(0,0,0,0.5);
+	-webkit-box-shadow: 0 10px 6px -6px rgba(0,0,0,0.5);
 }
 
-.ws-area,
-.ws-words {
-  display: inline-block;
-  vertical-align: top;
+.words {
+	font-size: 1.3em;
+	font-family: 'Fresca', serif;
+
 }
 
-.ws-words {
-  margin-left: 20px;
-  text-align: left;
+.words span {
+	float:left;
+	width: 200px;
+	height: 40px;
+
+	background: white;
+	line-height: 45px;
+	text-align: center;
+
+
 }
 
-.ws-word {
-  margin-bottom: 4px;
+.blur {
+	color: transparent;
+   	text-shadow: 0 0 6px rgba(0,0,0,0.7);
 }
 
-.ws-words ::first-letter {
-  text-transform: capitalize;
+.strike {
+  text-decoration: line-through;
 }
 
-/* WORDSEARCH.CSS */
-/* Wordsearch */
+canvas {
+	position: absolute;
+	display: block;
+	float: left;
 
-.ws-area {
-  background: #fafafa;
-  display: inline-block;
-  padding: 20px;
-  border-radius: 10px;
-  -moz-user-select: -moz-none;
-  -khtml-user-select: none;
-  -webkit-user-select: none;
-  -ms-user-select: none;
-}
-
-.ws-row {
-  line-height: 0;
-}
-
-.ws-col {
-  cursor: pointer;
-}
-
-.ws-col.ws-selected {
-  background: #eee;
-}
-
-.ws-found {
-  background: yellow;
 }
