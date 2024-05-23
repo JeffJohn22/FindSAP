@@ -1,4 +1,6 @@
 document.addEventListener('DOMContentLoaded', function() {
+    console.log("Script loaded."); // Check if script is loaded
+    
     const words = ["SAPIANS", "SLIMS", "PEOPLE", "NEWS", "FUN", "COFFEE"];
     const gridSize = 15;
     const grid = [];
@@ -104,21 +106,5 @@ document.addEventListener('DOMContentLoaded', function() {
                 grid[row + i][col] = word[i];
             }
         }
-    }
-
-    // Check if a word can be placed on the grid without overlapping
-    function checkSpace(row, col, length, direction) {
-        for (let i = 0; i < length; i++) {
-            if (direction === 'horizontal') {
-                if (grid[row][col + i] !== '' && grid[row][col + i] !== word[i]) {
-                    return false;
-                }
-            } else {
-                if (grid[row + i][col] !== '' && grid[row + i][col] !== word[i]) {
-                    return false;
-                }
-            }
-        }
-        return true;
     }
 });
