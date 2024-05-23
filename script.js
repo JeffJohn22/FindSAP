@@ -1,6 +1,4 @@
 document.addEventListener('DOMContentLoaded', function() {
-    console.log("DOM fully loaded and parsed");
-
     const words = ["SAPIANS", "SLIMS", "PEOPLE", "NEWS", "FUN", "COFFEE"];
     const gridSize = 15;
     const grid = [];
@@ -12,11 +10,9 @@ document.addEventListener('DOMContentLoaded', function() {
             grid[i][j] = '';
         }
     }
-    console.log("Grid initialized");
 
     // Place words randomly on the grid
     words.forEach(word => placeWord(word));
-    console.log("Words placed on grid", grid);
 
     // Fill empty cells with random letters
     for (let i = 0; i < gridSize; i++) {
@@ -26,7 +22,6 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
     }
-    console.log("Grid filled with random letters", grid);
 
     // Display the grid
     const table = document.getElementById('wordGrid');
@@ -40,7 +35,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
         table.appendChild(tr);
     });
-    console.log("Grid displayed on page");
 
     // Toggle highlighting of cells
     function toggleHighlight(cell, row, col) {
